@@ -92,8 +92,7 @@ window.onload = function init()
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition ); 
-    // thetaLoc2 = gl.getUniformLocation(program2, "theta");
+    gl.enableVertexAttribArray( vPosition );  
      
 
     matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
