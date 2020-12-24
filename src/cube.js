@@ -3,8 +3,8 @@
 var canvas;
 var gl;
 
-const canvasSizeX= 1024;
-const canvasSizeY= 1024;
+const canvasSizeX= 512;
+const canvasSizeY= 512;
 
 var NumVertices  = 36;
 
