@@ -72,7 +72,7 @@ window.onload = function init()
     //     1,5,5,col2); 
 
     createZombie();
-    // createZombie();
+    createZombie();
 
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
@@ -200,8 +200,8 @@ function createZombie(){
     var x = Math.floor(Math.random()*3)-1; 
     var y=2
     var z= Math.floor(Math.random() * 20)-40; 
-    zombies.push([x,y,z]);
-    colorCube(x,y,z,
+    zombies.push([0,y,0]);
+    colorCube(0,y,0,
         1,3,1,col3); 
 }
 
@@ -252,10 +252,6 @@ function quad(a, b, c, d,x,y,z,w,h,r,color)
     }
    
 }
-
-var hiz = 0.1;
-var yonx,yonz;
-
 function render()
 {
     // angle = performance.now() / 1000 / 6 * 2 * Math.PI;
