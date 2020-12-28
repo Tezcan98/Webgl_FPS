@@ -38,6 +38,7 @@ var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
 
+var zombies = []; 
 
 var Radian = 90;
 
@@ -58,22 +59,27 @@ window.onload = function init()
     // 
    
     //zemin
-    var col1= [ 0.8, 0.3, 0.5, 1.0 ]
-    colorCube(0, 2, 0,
-        100,1,100,col1);  
+    var col1= [ 0.3, 0.2, 0.1, 1.0 ]
+    colorCube(-20, 2, 20,
+        50,1,50,col1);  
     //duvar karşı
     var col2= [ 0.3, 0.4, 0.4, 0.1]
-    colorCube(-7, 1,0,
-        14,5,1,col2); 
+    colorCube(-20, 2,-30,
+        50,5,1,col2); 
     
     //duvar2 
-    colorCube(-7, 1,0
-        ,1,5,5,col2); 
+    colorCube(-20, 2,20
+        ,50,5,1,col2); 
     
-    //duvar3 
-    colorCube(6, 1,0,
-        1,5,5,col2); 
+    // //duvar3 
+    // colorCube(6, 1,0,
+    //     1,5,5,col2); 
 
+    createZombie();
+    createZombie();
+    createZombie();
+    createZombie();
+    
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
     
@@ -117,35 +123,39 @@ window.onload = function init()
     {
         switch(event.key){
             case 'w':
-                moveX -= viewMatrix[8]
-                moveZ += viewMatrix[10]
+                moveX -= viewMatrix[8] / 4
+                moveZ += viewMatrix[10] / 4
                 break;
             case 's':
-                moveX += viewMatrix[8]
-                moveZ -= viewMatrix[10]
+                moveX += viewMatrix[8] /4 
+                moveZ -= viewMatrix[10] / 4 
                 break;
             case 'd':
-                moveX -= viewMatrix[0]
-                moveZ += viewMatrix[2]
+                moveX -= viewMatrix[0] /4
+                moveZ += viewMatrix[2] /4
                 break;
             case 'a':
-                moveX += viewMatrix[0]
-                moveZ -= viewMatrix[2]
+                moveX += viewMatrix[0] /4 
+                moveZ -= viewMatrix[2] /4 
                 break;
         }  
     }, false);
     document.addEventListener('mousemove', function (event) {
         var x = event.clientX;
         var y = event.clientY;
-        if (x>canvasSizeX-100)
+        if (x>canvasSizeX || x < 20)  // fare kanvastan dönme cıkınca duruyor
+            eyeX = 0
+        else if (x>canvasSizeX-150)
             eyeX = 2
         else 
-            if(x<100)
+            if(x<120)
                 eyeX = -2
             else 
                 eyeX = 0
       }, false)
     
+  
+
     glMatrix.mat4.lookAt(viewMatrix, 
         [0, 0, 0], // eye - Position of the viewer
         [0, 0, 0], //center - Point the viewer is looking at
@@ -176,23 +186,16 @@ var matRotateYUniformLocation;
 var transMatrix;
 var matTransMatrixUniformLocation;
 
-/*
-document.addEventListener('keyup', (event) => {
-    switch(event.key) {
-        case 'ArrowUp':
-            eyeY = 0;
-            break;
-        case 'ArrowDown': 
-            eyeY = 0;
-            break;
-        case 'ArrowLeft':
-            eyeX = 0;
-            break;
-        case 'ArrowRight':
-            eyeX = 0;
-            break;
-    }
-  });*/
+
+function createZombie(){
+    var col3= [ 0.1, 1, 0.1, 1.0 ] 
+    var x = Math.floor(Math.random()*3)-1; 
+    var y=2
+    var z= Math.floor(Math.random() * 20)-40; 
+    zombies.push([x,y,z]);
+    colorCube(x,y,z,
+        1,3,1,col3); 
+}
 
 
 function colorCube(x,y,z,w,h,r,color)
@@ -275,8 +278,15 @@ function render()
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
     // gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.drawArrays( gl.TRIANGLES, 0, points.length );
-
+    gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  );
+    
+    for (let i=0;i<zombies.length;i++){ 
+        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[i][0],zombies[i][1],zombies[i][2]]);
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+        gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-i)*NumVertices,NumVertices );
+    }
  
     requestAnimFrame( render );
 }
