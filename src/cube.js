@@ -136,11 +136,20 @@ window.onload = function init()
             case 'a':
                 moveX += viewMatrix[0] /4 
                 moveZ -= viewMatrix[2] /4 
-                break;
-            // case '32': space ile zıplama koyalım :)
-                 
-        }  
+                break;          
+        }
+        if(moveX >= 20.0) 
+            moveX = 20.0
+        else if (moveZ >= 20.0)
+            moveZ = 20.0
+        else if (moveX <= -30.0)
+            moveX = -30.0
+        else if (moveZ <= -30.0)
+            moveZ = -30.0
+
+        console.log('moveX: ' + moveX + 'moveZ: ' + moveZ); 
     }, false);
+
     document.addEventListener('mousemove', function (event) {
         var x = event.clientX;
         var y = event.clientY;
@@ -265,7 +274,7 @@ function render()
     glMatrix.mat4.perspective(projMatrix,
         glMatrix.glMatrix.toRadian(90),
          canvas.clientWidth / canvas.clientHeight, 
-         0.1, 1000.0);
+         1.0, 1000.0);
 
     gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
