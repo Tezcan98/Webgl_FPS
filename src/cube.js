@@ -3,8 +3,8 @@
 var canvas;
 var gl;
 
-const canvasSizeX= 1024;
-const canvasSizeY= 1024;
+const canvasSizeX= 512;
+const canvasSizeY= 512;
 
 var NumVertices  = 36;
 
@@ -13,11 +13,7 @@ var colors = [];
 
 var cubes = [];
 
-var axis = 0;
-var theta = [ 0, 5, 4 ];
-
-var thetaLoc;
-var thetaLoc2;
+var axis = 0; 
 var program; 
 var cBuffer;
 var cBuffer2;
@@ -77,8 +73,8 @@ window.onload = function init()
 
     createZombie();
     createZombie();
-    createZombie();
-    createZombie();
+    // createZombie();
+    // createZombie();
     
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
@@ -98,8 +94,7 @@ window.onload = function init()
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition ); 
-    // thetaLoc2 = gl.getUniformLocation(program2, "theta");
+    gl.enableVertexAttribArray( vPosition );  
      
 
     matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
@@ -122,22 +117,28 @@ window.onload = function init()
     document.addEventListener('keydown', function onDownUp(event)
     {
         switch(event.key){
+            case 'W':
             case 'w':
                 moveX -= viewMatrix[8] / 4
                 moveZ += viewMatrix[10] / 4
                 break;
+            case 'S':
             case 's':
                 moveX += viewMatrix[8] /4 
                 moveZ -= viewMatrix[10] / 4 
                 break;
+            case 'D':
             case 'd':
                 moveX -= viewMatrix[0] /4
                 moveZ += viewMatrix[2] /4
                 break;
+            case 'A':
             case 'a':
                 moveX += viewMatrix[0] /4 
                 moveZ -= viewMatrix[2] /4 
                 break;
+            // case '32': space ile zıplama koyalım :)
+                 
         }  
     }, false);
     document.addEventListener('mousemove', function (event) {
@@ -192,20 +193,24 @@ function createZombie(){
     var x = Math.floor(Math.random()*3)-1; 
     var y=2
     var z= Math.floor(Math.random() * 20)-40; 
-    zombies.push([x,y,z]);
-    colorCube(x,y,z,
+    zombies.push([0,y,0]);
+    colorCube(0,y,0,
         1,3,1,col3); 
 }
 
+function sum(color){
+    var lamb = Math.random()/5
+    return [(color[0]-lamb),(color[1]-lamb),(color[2]-lamb),(color[3])]
+}
 
 function colorCube(x,y,z,w,h,r,color)
 { 
-    quad( 1, 0, 3, 2,-x,y,z,w,h,r,color ); 
-    quad( 2, 3, 7, 6,-x,y,z,w,h,r,color  ); 
-    quad( 3, 0, 4, 7,-x,y,z,w,h,r,color  ); 
-    quad( 6, 5, 1, 2,-x,y,z,w,h,r,color  );
-    quad( 4, 5, 6, 7,-x,y,z,w,h,r,color  );
-    quad( 5, 4, 0, 1,-x,y,z,w,h,r,color  );
+    quad( 1, 0, 3, 2,-x,y,z,w,h,r,sum(color) ); 
+    quad( 2, 3, 7, 6,-x,y,z,w,h,r,sum(color)  ); 
+    quad( 3, 0, 4, 7,-x,y,z,w,h,r,sum(color)  ); 
+    quad( 6, 5, 1, 2,-x,y,z,w,h,r,sum(color)  );
+    quad( 4, 5, 6, 7,-x,y,z,w,h,r,sum(color)  );
+    quad( 5, 4, 0, 1,-x,y,z,w,h,r,sum(color)  );
 }
 
 function quad(a, b, c, d,x,y,z,w,h,r,color)
@@ -230,22 +235,13 @@ function quad(a, b, c, d,x,y,z,w,h,r,color)
         yellow,
         color,
         white
-    ];
-
-    // We need to partition the quad into two triangles in order for
-    // WebGL to be able to render it.  In this case, we create two
-    // triangles from the quad ind0ices
-
-    //vertex color assigned by the index of the vertex
+    ]; 
 
     var indices = [ a, b, c, a, c, d ];
 
     for ( var i = 0; i < indices.length; ++i ) {
-        points.push( vertices[indices[i]] );
-        // colors.push( vertexColors[i] );
-        // for solid colored faces use
-        colors.push(color)
-        // colors.push(vertexColors[a]); 
+        points.push( vertices[indices[i]] ); 
+        colors.push(color) 
     }
    
 }
@@ -259,7 +255,7 @@ function render()
     
     glMatrix.mat4.rotate(viewMatrix, viewMatrix, glMatrix.glMatrix.toRadian(eyeX), [0, 1, 0])
     
-    glMatrix.mat4.fromTranslation(moveMatrix, [moveX, 0, moveZ]);
+    glMatrix.mat4.fromTranslation(moveMatrix, [moveX, moveY, moveZ]);
 
 
     glMatrix.mat4.perspective(projMatrix,
@@ -270,23 +266,48 @@ function render()
     gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
     gl.uniformMatrix4fv(matMoveUniformLocation, gl.FALSE, moveMatrix);
-    gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-    // glMatrix.mat4.translate(moveMatrix, moveMatrix, [moveX, moveY, moveZ]);
+    gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); 
 
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
     // gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  );
+    gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  ); 
+
     
-    for (let i=0;i<zombies.length;i++){ 
-        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[i][0],zombies[i][1],zombies[i][2]]);
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
-        gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-        gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-i)*NumVertices,NumVertices );
-    }
- 
+    // for (let i=0;i<zombies.length;i++){ 
+        var yonx,yonz;
+        var hiz = 1; 
+        // moveX <zombies[i][0] ? yonx = -hiz : yonx = hiz;
+        // moveZ <zombies[i][2] ? yonz = -hiz : yonz = hiz;
+        // if (moveX < zombies[i][0]){
+             
+        //     yonx = -hiz;
+        // }
+        // else {
+        //     yonx = hiz;
+        //     yonz = hiz;
+        // }
+        
+        // zombies[i][0] += yonx*10
+        // zombies[i][2] += yonz *10 
+        
+        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]+=1/4,zombies[0][1],zombies[0][2]+=.1]);
+
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+
+        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length)*NumVertices,NumVertices );
+        // glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]-=1/4,zombies[0][1],zombies[0][2]-=.1]);
+        
+
+
+        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[1][0]-=1/4,zombies[1][1],zombies[1][2]-=.1]);
+
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+        
+        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
+        
+    // } 
     requestAnimFrame( render );
 }
