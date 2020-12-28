@@ -288,17 +288,21 @@ function render()
     
     zombies[0][0] += (moveX - zombies[0][0])/200;
     zombies[0][2] += (moveZ - zombies[0][2])/200;
-
     glMatrix.mat4.translate(worldMatrix, worldMatrix,[-zombies[0][0], 1, -zombies[0][2]]);   
 
 
     gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
     gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length)*NumVertices,NumVertices );
+    
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0], -1, zombies[0][2]])
 
-
-    //glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[1][0]-=1/4,zombies[1][1],zombies[1][2]-=.1]);
-    //gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
-    //gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
+    /*
+    zombies[1][0] += (moveX - zombies[1][0])/200;
+    zombies[1][2] += (moveZ - zombies[1][2])/200;
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[-zombies[1][0], 1, -zombies[1][2]]);
+    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+    gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
+    */
         
     // } 
     requestAnimFrame( render );
