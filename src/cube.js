@@ -284,38 +284,21 @@ function render()
 
     gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  ); 
 
+        
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]+=1/4,zombies[0][1],zombies[0][2]+=.1]);
+    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+    gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length)*NumVertices,NumVertices);
+
     
-    // for (let i=0;i<zombies.length;i++){ 
-        var yonx,yonz;
-        var hiz = 1; 
-        // moveX <zombies[i][0] ? yonx = -hiz : yonx = hiz;
-        // moveZ <zombies[i][2] ? yonz = -hiz : yonz = hiz;
-        // if (moveX < zombies[i][0]){
-             
-        //     yonx = -hiz;
-        // }
-        // else {
-        //     yonx = hiz;
-        //     yonz = hiz;
-        // }
-        
-        // zombies[i][0] += yonx*10
-        // zombies[i][2] += yonz *10 
-        
-        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]+=1/4,zombies[0][1],zombies[0][2]+=.1]);
-
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
-
-        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length)*NumVertices,NumVertices );
-        // glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]-=1/4,zombies[0][1],zombies[0][2]-=.1]);
-        
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[0][0]-=1/4,zombies[0][1],zombies[0][2]-=.1]);
+    
 
 
-        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[1][0]-=1/4,zombies[1][1],zombies[1][2]-=.1]);
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[1][0]-=1/4,zombies[1][1],zombies[1][2]-=.1]);
 
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
-        
-        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
+    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+    
+    gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
         
     // } 
     requestAnimFrame( render );
