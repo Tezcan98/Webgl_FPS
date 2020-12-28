@@ -143,15 +143,19 @@ window.onload = function init()
     document.addEventListener('mousemove', function (event) {
         var x = event.clientX;
         var y = event.clientY;
-        if (x>canvasSizeX-100)
+        if (x>canvasSizeX || x < 20)  // fare kanvastan dönme cıkınca duruyor
+            eyeX = 0
+        else if (x>canvasSizeX-150)
             eyeX = 2
         else 
-            if(x<100)
+            if(x<120)
                 eyeX = -2
             else 
                 eyeX = 0
       }, false)
     
+  
+
     glMatrix.mat4.lookAt(viewMatrix, 
         [0, 0, 0], // eye - Position of the viewer
         [0, 0, 0], //center - Point the viewer is looking at
@@ -274,8 +278,15 @@ function render()
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
     // gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.drawArrays( gl.TRIANGLES, 0, points.length );
-
+    gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  );
+    
+    for (let i=0;i<zombies.length;i++){ 
+        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[i][0],zombies[i][1],zombies[i][2]]);
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
+        gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-i)*NumVertices,NumVertices );
+    }
  
     requestAnimFrame( render );
 }
