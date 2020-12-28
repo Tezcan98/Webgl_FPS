@@ -72,10 +72,8 @@ window.onload = function init()
     //     1,5,5,col2); 
 
     createZombie();
-    createZombie();
     // createZombie();
-    // createZombie();
-    
+
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
     
@@ -287,18 +285,21 @@ function render()
     // gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
 
     gl.drawArrays( gl.TRIANGLES, 0, points.length-zombies.length*NumVertices  ); 
-
-
-    for (let i=0;i<zombies.length;i++){ 
-        moveX < zombies[i][0] ? yonx = -hiz : yonx = hiz;
-        moveZ < zombies[i][2] ? yonz = hiz : yonz = -hiz;
-        console.log(moveX,zombies[i][0])
-        console.log(moveZ,zombies[i][2])
-        glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[i][0]+=yonx,zombies[i][1],zombies[i][2]+=yonz]);  // farklı yerlere gitmesi için i leri ile ilgili yerlere gönderdim dsf
-        
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);  
-        gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-i)*NumVertices,NumVertices ); 
     
-    } 
+    zombies[0][0] += (moveX - zombies[0][0])/200;
+    zombies[0][2] += (moveZ - zombies[0][2])/200;
+
+    glMatrix.mat4.translate(worldMatrix, worldMatrix,[-zombies[0][0], 1, -zombies[0][2]]);   
+
+
+    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+    gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length)*NumVertices,NumVertices );
+
+
+    //glMatrix.mat4.translate(worldMatrix, worldMatrix,[zombies[1][0]-=1/4,zombies[1][1],zombies[1][2]-=.1]);
+    //gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
+    //gl.drawArrays( gl.TRIANGLES, points.length-(zombies.length-1)*NumVertices,NumVertices );
+        
+    // } 
     requestAnimFrame( render );
 }
