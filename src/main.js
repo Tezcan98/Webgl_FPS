@@ -74,11 +74,8 @@ window.onload = function init()
     colorCube(coord3, size3, col2, points, colors); 
      
     createZombie();
-    createZombie(); 
-    // createZombie();
-    // createZombie(); 
-
-    createBullet([0,0]); 
+    createZombie();  
+ 
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
     
@@ -162,11 +159,11 @@ window.onload = function init()
         var y = event.clientY;
         if (x>canvasSizeX || x < 20)  // fare kanvastan dönme cıkınca duruyor
             eyeX = 0
-        else if (x>canvasSizeX-150)
-            eyeX = 2
+        else if (x>(canvasSizeX/2+33))
+            eyeX = 1.4
         else 
-            if(x<120)
-                eyeX = -2
+            if(x<(canvasSizeX/2-33))
+                eyeX = -1.4
             else 
                 eyeX = 0
       }, false)
@@ -176,7 +173,8 @@ window.onload = function init()
       
         var x = event.clientX;
         var y = event.clientY;
-        createBullet([x,y]); 
+        // console.log(viewMatrix)
+        createBullet(viewMatrix); 
         
         finalPoints = finalPoints.concat(bullets[bullets.length-1].bpoints)
         finalColors = finalColors.concat(bullets[bullets.length-1].bcolors)
@@ -298,32 +296,32 @@ function quad(a, b, c, d,x,y,z,w,h,r,color, point, colp)
 }
 function render()
 {
-      
     glMatrix.mat4.identity(worldMatrix);
     
     glMatrix.mat4.rotate(viewMatrix, viewMatrix, glMatrix.glMatrix.toRadian(eyeX), [0, 1, 0])
     
     glMatrix.mat4.fromTranslation(moveMatrix, [moveX, moveY, moveZ]);
-
-
+    
+    
     glMatrix.mat4.perspective(projMatrix,
         glMatrix.glMatrix.toRadian(90),
-         canvas.clientWidth / canvas.clientHeight, 
-         1.0, 1000.0);
-
-    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        canvas.clientWidth / canvas.clientHeight, 
+        1.0, 1000.0);
+        
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
     gl.uniformMatrix4fv(matMoveUniformLocation, gl.FALSE, moveMatrix);
     gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); 
-
+    
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
     
-
+    
     gl.drawArrays( gl.TRIANGLES, 0, points.length ); 
     
     
+    // console.log(viewMatrix[0])
     for (let z of zombies){  
         z.followMe(moveX,moveZ);
         z.showZombie()  

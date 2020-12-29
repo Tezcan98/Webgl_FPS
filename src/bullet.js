@@ -26,9 +26,10 @@ class bullet {
 
     goto(){
       
-      this.x += (this.target[0] - this.x)/4000;
+      this.x += this.target[2] 
+      // this.y -= (this.target[1] - this.y)/4000;
+      this.z += this.target[0]//(targetZ - this.z)/200;
       return this.x
-      // this.z += (targetZ - this.z)/200;
     }
     
   
