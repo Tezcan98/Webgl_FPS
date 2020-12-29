@@ -3,8 +3,8 @@
 var canvas;
 var gl;
 
-const canvasSizeX= 512;
-const canvasSizeY= 512;
+const canvasSizeX= 820;
+const canvasSizeY= 700;
 
 var NumVertices  = 36;
 
@@ -33,12 +33,13 @@ var moveY= 0;
 var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
-
+var kaybolmaUzakligi = 50;
 var zombies = [];  
 
-// var bullets = []; 
+var bullets = []; 
 
-
+var finalPoints;
+var finalColors;
 var Radian = 90;
 var GRAVITY = 9.8; // zıplarız belki sdfsdf
 
@@ -59,7 +60,7 @@ window.onload = function init()
     // 
    
     //zemin
-    var col1= [ 0.4, 0.3, 0.2, 1.0 ]
+    var col1= [ 0.4, 0.6, 0.6, 1.0 ]
     var coord1 =[-20, 2, 20];
     var size1 = [50,1,50]; 
     colorCube(coord1, size1, col1, points, colors);  
@@ -73,38 +74,35 @@ window.onload = function init()
     colorCube(coord3, size3, col2, points, colors); 
      
     createZombie();
-    // createZombie(); 
+    createZombie(); 
     // createZombie();
     // createZombie(); 
 
+    createBullet([0,0]); 
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program );
     
-    cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
+    
  
-    var finalColors = colors
+    finalColors = colors
     for (let z of zombies)
         finalColors = finalColors.concat(z.zcolors); 
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(finalColors), gl.STATIC_DRAW );
-    
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
-  
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
+    for (let b of bullets)
+        finalColors = finalColors.concat(b.bcolors); 
+
+
+    createColors()
 
      
-    var finalPoints = points
+    finalPoints = points
     for (let z of zombies)
         finalPoints = finalPoints.concat(z.zpoints); 
+    for (let b of bullets)
+         finalPoints = finalPoints.concat(b.bpoints); 
     
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(finalPoints), gl.STATIC_DRAW );
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );  
-     
+    // console.log(finalPoints.length/NumVertices)
+
+    createPoints()
 
     matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
     matViewUniformLocation = gl.getUniformLocation(program, 'mView');
@@ -174,6 +172,19 @@ window.onload = function init()
       }, false)
     
   
+      document.addEventListener('click', function (event) {
+      
+        var x = event.clientX;
+        var y = event.clientY;
+        createBullet([x,y]); 
+        
+        finalPoints = finalPoints.concat(bullets[bullets.length-1].bpoints)
+        finalColors = finalColors.concat(bullets[bullets.length-1].bcolors)
+        
+        createPoints()
+        createColors()
+      }, false)
+    
 
     glMatrix.mat4.lookAt(viewMatrix, 
         [0, 0, 0], // eye - Position of the viewer
@@ -190,7 +201,23 @@ window.onload = function init()
 
 // }
 
-
+function createPoints()
+{ 
+    var vBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer ); 
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(finalPoints), gl.STATIC_DRAW );
+    var vPosition = gl.getAttribLocation( program, "vPosition" );
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vPosition );   
+}
+function createColors(){
+    cBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(finalColors), gl.STATIC_DRAW );
+    var vColor = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vColor );
+}
 
 var angle = 0;
 var yRotationMatrix;
@@ -214,8 +241,9 @@ var transMatrix;
 var matTransMatrixUniformLocation;
 
 
-function createBullet(){
-
+function createBullet(target){
+    var color= [ 0,0,0, 1.0 ]   
+    bullets.push( new bullet(color, [moveX,moveY,moveZ], target ,bullets.length) ); 
 
 }
 
@@ -224,7 +252,7 @@ function createZombie(){
     var x = Math.floor(Math.random()*3)-1; 
     var y=2
     var z= Math.floor(Math.random() * 20)-20; 
-    var coord =[0,y,0];
+    var coord =[x,y,z];
     var size = [1,3,1];   
     zombies.push( new zombie(color,coord,size, zombies.length) ); 
 }
@@ -291,7 +319,7 @@ function render()
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-    // gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
+    
 
     gl.drawArrays( gl.TRIANGLES, 0, points.length ); 
     
@@ -301,7 +329,12 @@ function render()
         z.showZombie()  
     } 
      
-
+    for (let [i,b] of bullets.entries()){   
+        b.showBullet()  
+        if (b.goto() > kaybolmaUzakligi){ //belilri uzaklıkta kaybolur
+            bullets.splice(i,1); 
+        }
+    }  
     
     requestAnimFrame( render );
 }
