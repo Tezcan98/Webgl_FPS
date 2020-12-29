@@ -53,55 +53,33 @@ window.onload = function init()
     gl.viewport( 0, 0, canvasSizeX, canvasSizeY );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
     
-    gl.enable(gl.DEPTH_TEST);
-    
-    //
-    //  Load shaders and initialize attribute buffers
-    // 
-   
-    //zemin
-    var col1= [ 0.4, 0.6, 0.6, 1.0 ]
-    var coord1 =[-20, 2, 20];
-    var size1 = [50,1,50]; 
-    colorCube(coord1, size1, col1, points, colors);  
-  
-    var col2= [ 0.4, 0.5, 0.5, 0.1]
-    var coord2 =[-20, 2,-30];
-    var size2 = [50,5,1]; 
-    colorCube(coord2, size2, col2, points, colors); 
-    var coord3 =[-20, 2,20];
-    var size3 = [50,5,1]; 
-    colorCube(coord3, size3, col2, points, colors); 
-     
-    createZombie();
+    gl.enable(gl.DEPTH_TEST);  
+
+
+    initEnviroment(); // Duvarlar ve zemin oluşturulur. 
+    createZombie();  // zombi class oluşturup zombiler dizisine ekler
     createZombie();  
  
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
-    gl.useProgram( program );
+    gl.useProgram( program ); 
+
     
-    
- 
+   finalPoints = points  //  mermi ve zombi noktaları finalpointse eklenir daha sonra createpoints() fonksiyonu buffere atar
+   for (let z of zombies)
+       finalPoints = finalPoints.concat(z.zpoints); 
+   for (let b of bullets)
+        finalPoints = finalPoints.concat(b.bpoints);  
+   createPoints()
+
     finalColors = colors
     for (let z of zombies)
         finalColors = finalColors.concat(z.zcolors); 
     for (let b of bullets)
         finalColors = finalColors.concat(b.bcolors); 
-
-
     createColors()
 
-     
-    finalPoints = points
-    for (let z of zombies)
-        finalPoints = finalPoints.concat(z.zpoints); 
-    for (let b of bullets)
-         finalPoints = finalPoints.concat(b.bpoints); 
-    
-    // console.log(finalPoints.length/NumVertices)
 
-    createPoints()
-
-    matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
+    matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');  // BURADA GEREKSİZLERİ SİL PLS
     matViewUniformLocation = gl.getUniformLocation(program, 'mView');
     matViewTersUniformLocation = gl.getUniformLocation(program, 'mViewTers');
     matMoveUniformLocation = gl.getUniformLocation(program, 'mMove');
@@ -109,7 +87,7 @@ window.onload = function init()
     matTransMatrixUniformLocation = gl.getUniformLocation(program, 'transMatrix');
     
 
-    worldMatrix = new Float32Array(16);
+    worldMatrix = new Float32Array(16);   // BURADA GEREKSİZLERİ SİL PLS
     viewMatrix = new Float32Array(16); 
     projMatrix = new Float32Array(16);
     moveMatrix = new Float32Array(16);
@@ -140,26 +118,23 @@ window.onload = function init()
                 moveZ -= viewMatrix[2] /4 
                 break;          
         }
-        if(moveX >= 20.0) 
+        if(moveX >= 20.0)   //DUVARA DEYMESİN
             moveX = 20.0
         else if (moveZ >= 20.0)
             moveZ = 20.0
         else if (moveX <= -30.0)
             moveX = -30.0
         else if (moveZ <= -30.0)
-            moveZ = -30.0
-
-        console.log('moveX: ' + moveX + 'moveZ: ' + moveZ); 
+            moveZ = -30.0 
     }, false);
     
 
-    document.addEventListener('mousemove', function (event) {
-      
+    document.addEventListener('mousemove', function (event) { 
         var x = event.clientX;
         var y = event.clientY;
         if (x>canvasSizeX || x < 20)  // fare kanvastan dönme cıkınca duruyor
             eyeX = 0
-        else if (x>(canvasSizeX/2+33))
+        else if (x>(canvasSizeX/2+33))  // FARE ORTADAN SAGA GECİNCE EKRAN SAĞA DÖNÜYOR
             eyeX = 1.4
         else 
             if(x<(canvasSizeX/2-33))
@@ -171,15 +146,13 @@ window.onload = function init()
   
       document.addEventListener('click', function (event) {
       
-        var x = event.clientX;
-        var y = event.clientY;
-        // console.log(viewMatrix)
+        // Ateş ettirmeler
         createBullet(viewMatrix); 
         
         finalPoints = finalPoints.concat(bullets[bullets.length-1].bpoints)
         finalColors = finalColors.concat(bullets[bullets.length-1].bcolors)
         
-        createPoints()
+        createPoints()  // yeni nokta oluşturulduğu için buf işlemi tekrar
         createColors()
       }, false)
     
@@ -194,10 +167,27 @@ window.onload = function init()
     render();
 }
 
-// function collusion(){
+// function collusion(){ // ZAMAN OLURSA AYARLARIZ
 
 
 // }
+
+function initEnviroment(){
+
+    var col1= [ 0.4, 0.6, 0.6, 1.0 ]
+    var coord1 =[-20, 2, 20];
+    var size1 = [50,1,50]; 
+    colorCube(coord1, size1, col1, points, colors);  
+  
+    var col2= [ 0.4, 0.5, 0.5, 0.1]
+    var coord2 =[-20, 2,-30];
+    var size2 = [50,5,1]; 
+    colorCube(coord2, size2, col2, points, colors); 
+    var coord3 =[-20, 2,20];
+    var size3 = [50,5,1]; 
+    colorCube(coord3, size3, col2, points, colors); 
+
+}
 
 function createPoints()
 { 
@@ -218,7 +208,7 @@ function createColors(){
 }
 
 var angle = 0;
-var yRotationMatrix;
+var yRotationMatrix;    // GEREKSİZLERİ SİLELİM
 var xRotationMatrix;
 var identityMatrix;
 var worldMatrix;
@@ -239,10 +229,9 @@ var transMatrix;
 var matTransMatrixUniformLocation;
 
 
-function createBullet(target){
+function createBullet(target){  
     var color= [ 0,0,0, 1.0 ]   
-    bullets.push( new bullet(color, [moveX,moveY,moveZ], target ,bullets.length) ); 
-
+    bullets.push( new bullet(color, [moveX,moveY,moveZ], target ,bullets.length) );  
 }
 
 function createZombie(){
@@ -308,7 +297,7 @@ function render()
         canvas.clientWidth / canvas.clientHeight, 
         1.0, 1000.0);
         
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
     gl.uniformMatrix4fv(matMoveUniformLocation, gl.FALSE, moveMatrix);
     gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix); 
@@ -329,7 +318,7 @@ function render()
      
     for (let [i,b] of bullets.entries()){   
         b.showBullet()  
-        if (b.goto() > kaybolmaUzakligi){ //belilri uzaklıkta kaybolur
+        if (b.goto() > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
             bullets.splice(i,1); 
         }
     }  
