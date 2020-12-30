@@ -325,7 +325,8 @@ function render()
      
     for (let [i,b] of bullets.entries()){   
         b.showBullet()  
-        if (b.goto() > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
+        var mesafe = b.goto(); 
+        if (mesafe[0] > kaybolmaUzakligi ||mesafe[1] > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
             bullets.splice(i,1); 
         }
     }  

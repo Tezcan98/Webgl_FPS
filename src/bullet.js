@@ -28,10 +28,10 @@ class bullet {
 
     goto(){
       console.log(this.target)
-      this.x += this.target[2]/11
+      this.x += this.target[2]/2
       // this.y -= (this.target[1] - this.y)/4000;
-      this.z += this.target[0]/11 //(targetZ - this.z)/200;
-      return this.x
+      this.z += this.target[0]/2 //(targetZ - this.z)/200;
+      return this.x,this.z
     }
      
     
