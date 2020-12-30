@@ -3,8 +3,8 @@
 var canvas;
 var gl;
 
-const canvasSizeX= 820;
-const canvasSizeY= 700;
+const canvasSizeX= 1024;
+const canvasSizeY= 780;
 
 var NumVertices  = 36;
 
@@ -127,20 +127,27 @@ window.onload = function init()
         else if (moveZ <= -30.0)
             moveZ = -30.0 
     }, false);
-    
-
-    document.addEventListener('mousemove', function (event) { 
+    var lastmouseX = canvasSizeX/2;
+    var fark;
+    document.addEventListener('mousemove', function (event) {
+        var paddleX;
+        var relativeX = event.clientX - canvas.offsetLeft;
+        if(relativeX > 0 && relativeX < canvas.width) {
+            paddleX = relativeX - canvasSizeX/2;
+        }
+        console.log(paddleX)
+        
         var x = event.clientX;
         var y = event.clientY;
-        if (x>canvasSizeX || x < 20)  // fare kanvastan dönme cıkınca duruyor
-            eyeX = 0
-        else if (x>(canvasSizeX/2+33))  // FARE ORTADAN SAGA GECİNCE EKRAN SAĞA DÖNÜYOR
-            eyeX = 1.4
-        else 
-            if(x<(canvasSizeX/2-33))
-                eyeX = -1.4
-            else 
-                eyeX = 0
+        eyeX = 0;
+        if ( (x < canvasSizeX-10) & (x > 20))
+            fark = x - lastmouseX; 
+        // console.log(fark)
+        if (Math.abs(fark)>1) // hassasiyet
+            eyeX = fark
+
+        lastmouseX = x;
+
       }, false)
     
   
@@ -291,7 +298,7 @@ function render()
     
     glMatrix.mat4.fromTranslation(moveMatrix, [moveX, moveY, moveZ]);
     
-    
+    eyeX = 0;
     glMatrix.mat4.perspective(projMatrix,
         glMatrix.glMatrix.toRadian(90),
         canvas.clientWidth / canvas.clientHeight, 

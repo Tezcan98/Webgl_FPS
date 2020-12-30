@@ -10,7 +10,9 @@ class bullet {
       this.bcolors = [];
       this.bullnum = id;
       var size = [.2,.2,.2]
-      this.target = target 
+      this.target = [...target]
+       
+ 
       colorCube(coord, size, color, this.bpoints, this.bcolors); 
 
     } 
@@ -25,13 +27,12 @@ class bullet {
     }
 
     goto(){
-      
-      this.x += this.target[2] 
+      console.log(this.target)
+      this.x += this.target[2]/11
       // this.y -= (this.target[1] - this.y)/4000;
-      this.z += this.target[0]//(targetZ - this.z)/200;
+      this.z += this.target[0]/11 //(targetZ - this.z)/200;
       return this.x
     }
-    
-  
+     
     
   }
