@@ -41,6 +41,7 @@ class zombie {
             console.log("a")
             return -1     
           }
+
       }
 
     }

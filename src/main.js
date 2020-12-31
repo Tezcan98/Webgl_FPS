@@ -224,9 +224,9 @@ function createBullet(target){
 
 function createZombie(){ 
     var color= [ 0.1, 1, 0.1, 1.0 ] 
-    var x = Math.floor(Math.random()*3)-1; 
+    var x = Math.floor(Math.random()*3); 
     var y=2
-    var z= Math.floor(Math.random() * 20)-20; 
+    var z= Math.floor(Math.random() * 20); 
     var coord =[x,y,z];
     var size = [1,3,1];   
 
@@ -321,7 +321,7 @@ function render()
     
      
     for (let [i,z] of zombies.entries()){  
-        // z.followMe(moveX,moveZ);
+        z.followMe(moveX,moveZ);
         if(z.showZombie(i) == -1){ // vurulma varsa  
             zombies.splice(i,1);
             refresh()   
