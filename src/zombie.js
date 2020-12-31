@@ -18,10 +18,10 @@ class zombie {
 
     showZombie(i){  
       
-      glMatrix.mat4.translate(worldMatrix, worldMatrix,[-this.x + this.ilkX, 1, -this.z + this.ilkZ ]);   
+      glMatrix.mat4.translate(worldMatrix, worldMatrix,[-this.x - this.ilkX, 1, -this.z + this.ilkZ ]);   
       gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
       gl.drawArrays( gl.TRIANGLES, EnviromentPoints.length + (NumVertices*i),NumVertices);
-      glMatrix.mat4.translate(worldMatrix, worldMatrix,[this.x - this.ilkX, -1, this.z- this.ilkZ]);   
+      glMatrix.mat4.translate(worldMatrix, worldMatrix,[this.x + this.ilkX, -1, this.z - this.ilkZ]);   
       return this.Checkcollusion(); // if collusion zombie will dead
     }
 
@@ -38,7 +38,7 @@ class zombie {
         var azmin = this.z-this.size[2]
         if (axmin <= bxmax && axmax >= bxmin) 
           if(azmin <= bzmax && azmax >= bzmin){
-            console.log("a")
+            b.time = kaybolmaSuresi
             return -1     
           }
 

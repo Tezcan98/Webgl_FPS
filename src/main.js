@@ -33,7 +33,7 @@ var moveY= 0;
 var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
-var kaybolmaSuresi = 200;
+var kaybolmaSuresi = 20;
 var zombies = [];  
 
 var bullets = []; 
