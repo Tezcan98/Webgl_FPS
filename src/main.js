@@ -8,8 +8,8 @@ const canvasSizeY= 780;
 
 var NumVertices  = 36;
 
-var points = [];
-var colors = [];
+var EnviromentPoints = [];
+var EnviromentColors = [];
 
 var cubes = [];
 
@@ -33,13 +33,13 @@ var moveY= 0;
 var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
-var kaybolmaUzakligi = 50;
+var kaybolmaUzakligi = 3;
 var zombies = [];  
 
 var bullets = []; 
 
-var finalPoints;
-var finalColors;
+var finalPoints =[];
+var finalColors =[];
 var Radian = 90;
 var GRAVITY = 9.8; // zıplarız belki sdfsdf
 
@@ -56,28 +56,16 @@ window.onload = function init()
     gl.enable(gl.DEPTH_TEST);  
 
 
-    initEnviroment(); // Duvarlar ve zemin oluşturulur. 
-    createZombie();  // zombi class oluşturup zombiler dizisine ekler
-    createZombie();  
  
     program = initShaders( gl, "vertex-shader2", "fragment-shader2" );
     gl.useProgram( program ); 
 
     
-   finalPoints = points  //  mermi ve zombi noktaları finalpointse eklenir daha sonra createpoints() fonksiyonu buffere atar
-   for (let z of zombies)
-       finalPoints = finalPoints.concat(z.zpoints); 
-   for (let b of bullets)
-        finalPoints = finalPoints.concat(b.bpoints);  
-   createPoints()
-
-    finalColors = colors
-    for (let z of zombies)
-        finalColors = finalColors.concat(z.zcolors); 
-    for (let b of bullets)
-        finalColors = finalColors.concat(b.bcolors); 
-    createColors()
-
+    
+    initEnviroment(); // Duvarlar ve zemin oluşturulur. 
+    // createZombie();  // zombi class oluşturup zombiler dizisine ekler
+    // createZombie();  
+    
 
     matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');  // BURADA GEREKSİZLERİ SİL PLS
     matViewUniformLocation = gl.getUniformLocation(program, 'mView');
@@ -130,20 +118,13 @@ window.onload = function init()
     var lastmouseX = canvasSizeX/2;
     var fark;
     document.addEventListener('mousemove', function (event) {
-        var paddleX;
-        var relativeX = event.clientX - canvas.offsetLeft;
-        if(relativeX > 0 && relativeX < canvas.width) {
-            paddleX = relativeX - canvasSizeX/2;
-        }
-        console.log(paddleX)
         
         var x = event.clientX;
         var y = event.clientY;
         eyeX = 0;
         if ( (x < canvasSizeX-10) & (x > 20))
-            fark = x - lastmouseX; 
-        // console.log(fark)
-        if (Math.abs(fark)>1) // hassasiyet
+            fark = x - lastmouseX;  
+        if (Math.abs(fark)>0.8) // hassasiyet
             eyeX = fark
 
         lastmouseX = x;
@@ -155,12 +136,7 @@ window.onload = function init()
       
         // Ateş ettirmeler
         createBullet(viewMatrix); 
-        
-        finalPoints = finalPoints.concat(bullets[bullets.length-1].bpoints)
-        finalColors = finalColors.concat(bullets[bullets.length-1].bcolors)
-        
-        createPoints()  // yeni nokta oluşturulduğu için buf işlemi tekrar
-        createColors()
+ 
       }, false)
     
 
@@ -184,20 +160,22 @@ function initEnviroment(){
     var col1= [ 0.4, 0.6, 0.6, 1.0 ]
     var coord1 =[-20, 2, 20];
     var size1 = [50,1,50]; 
-    colorCube(coord1, size1, col1, points, colors);  
+    colorCube(coord1, size1, col1, EnviromentPoints, EnviromentColors);  
   
     var col2= [ 0.4, 0.5, 0.5, 0.1]
     var coord2 =[-20, 2,-30];
     var size2 = [50,5,1]; 
-    colorCube(coord2, size2, col2, points, colors); 
+    colorCube(coord2, size2, col2, EnviromentPoints, EnviromentColors); 
     var coord3 =[-20, 2,20];
     var size3 = [50,5,1]; 
-    colorCube(coord3, size3, col2, points, colors); 
+    colorCube(coord3, size3, col2, EnviromentPoints, EnviromentColors); 
 
+    finalColors = [...EnviromentColors]
+    finalPoints = [...EnviromentPoints]
 }
 
 function createPoints()
-{ 
+{  
     var vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer ); 
     gl.bufferData( gl.ARRAY_BUFFER, flatten(finalPoints), gl.STATIC_DRAW );
@@ -239,16 +217,23 @@ var matTransMatrixUniformLocation;
 function createBullet(target){  
     var color= [ 0,0,0, 1.0 ]   
     bullets.push( new bullet(color, [moveX,moveY,moveZ], target ,bullets.length) );  
+    reflesh()
 }
 
-function createZombie(){
+function createZombie(){ 
     var color= [ 0.1, 1, 0.1, 1.0 ] 
     var x = Math.floor(Math.random()*3)-1; 
     var y=2
     var z= Math.floor(Math.random() * 20)-20; 
     var coord =[x,y,z];
     var size = [1,3,1];   
-    zombies.push( new zombie(color,coord,size, zombies.length) ); 
+
+    zombies.push( new zombie(color,coord,size, zombies.length));  
+    finalPoints = [...finalPoints,...zombies[zombies.length-1].points]
+    finalColors = [...finalColors,...zombies[zombies.length-1].colors]
+ 
+    createPoints()  // yeni nokta oluşturulduğu için buf işlemi tekrar
+    createColors()
 }
 
 function sum(color){  // randomize cube's color so feel like shadow :)
@@ -290,8 +275,27 @@ function quad(a, b, c, d,x,y,z,w,h,r,color, point, colp)
     }
    
 }
+var timer = 0 ;
+function reflesh(){
+    let objects = zombies.concat(bullets);
+    finalPoints = [...EnviromentPoints];
+    finalColors = [...EnviromentColors];
+    for (var o of objects) {
+        finalPoints = [...finalPoints,...o.points]
+        finalColors = [...finalColors,...o.colors]
+        
+    }
+    
+    createPoints() 
+    createColors()
+}
+
 function render()
 {
+    
+    if(timer++ % 1000 == 0 )
+        createZombie()
+
     glMatrix.mat4.identity(worldMatrix);
     
     glMatrix.mat4.rotate(viewMatrix, viewMatrix, glMatrix.glMatrix.toRadian(eyeX), [0, 1, 0])
@@ -314,21 +318,27 @@ function render()
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
     
     
-    gl.drawArrays( gl.TRIANGLES, 0, points.length ); 
+    gl.drawArrays( gl.TRIANGLES, 0, EnviromentPoints.length ); 
     
     
     // console.log(viewMatrix[0])
-    for (let z of zombies){  
-        z.followMe(moveX,moveZ);
-        z.showZombie()  
+    for (let [i,z] of zombies.entries()){  
+        // z.followMe(moveX,moveZ);
+        if(z.showZombie(i) == -1){ // vurulma varsa 
+            
+            zombies.splice(i,1);
+            reflesh()   
+        }
+        // console.log("z : ",zombies.length)
     } 
      
     for (let [i,b] of bullets.entries()){   
-        b.showBullet()  
+        b.showBullet(i)  
         var mesafe = b.goto(); 
-        if (mesafe[0] > kaybolmaUzakligi ||mesafe[1] > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
-            bullets.splice(i,1); 
-        }
+        // if (mesafe[0] > kaybolmaUzakligi | mesafe[1] > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
+        //     bullets.splice(i,1); 
+        //     reflesh(bullets) 
+        // }
     }  
     
     requestAnimFrame( render );
