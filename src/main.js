@@ -33,7 +33,7 @@ var moveY= 0;
 var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
-var kaybolmaSuresi = 20;
+var kaybolmaSuresi = 120;
 var zombies = [];  
 
 var bullets = []; 
@@ -151,11 +151,7 @@ window.onload = function init()
 
     render();
 }
-
-// function collusion(){ // ZAMAN OLURSA AYARLARIZ
-
-
-// }
+ 
 
 function initEnviroment(){
 
@@ -314,9 +310,7 @@ function render()
     
     
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
-    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-    
-    
+    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT); 
     gl.drawArrays( gl.TRIANGLES, 0, EnviromentPoints.length ); 
     
      
@@ -325,8 +319,7 @@ function render()
         if(z.showZombie(i) == -1){ // vurulma varsa  
             zombies.splice(i,1);
             refresh()   
-        }
-        // console.log("z : ",zombies.length)
+        } 
     } 
      
     for (let [i,b] of bullets.entries()){   
