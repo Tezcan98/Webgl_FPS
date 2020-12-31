@@ -46,8 +46,8 @@ class zombie {
     }
 
     followMe(moveX,moveZ){
-      this.x += (moveX - this.x)/300;
-      this.z += (moveZ - this.z)/300;
+      this.x += (moveX - this.x)/200;
+      this.z += (moveZ - this.z)/200;
     }
     
 

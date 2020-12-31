@@ -33,7 +33,7 @@ var moveY= 0;
 var moveZ= 0.0;
 var eyeX = 0;
 var eyeY = 0;
-var kaybolmaUzakligi = 3;
+var kaybolmaSuresi = 200;
 var zombies = [];  
 
 var bullets = []; 
@@ -63,6 +63,8 @@ window.onload = function init()
     
     
     initEnviroment(); // Duvarlar ve zemin oluşturulur. 
+    createPoints()  
+    createColors()
     // createZombie();  // zombi class oluşturup zombiler dizisine ekler
     // createZombie();  
     
@@ -124,8 +126,8 @@ window.onload = function init()
         eyeX = 0;
         if ( (x < canvasSizeX-10) & (x > 20))
             fark = x - lastmouseX;  
-        if (Math.abs(fark)>0.8) // hassasiyet
-            eyeX = fark
+        if (Math.abs(fark)>1) // hassasiyet
+            eyeX = fark*1.5
 
         lastmouseX = x;
 
@@ -217,7 +219,7 @@ var matTransMatrixUniformLocation;
 function createBullet(target){  
     var color= [ 0,0,0, 1.0 ]   
     bullets.push( new bullet(color, [moveX,moveY,moveZ], target ,bullets.length) );  
-    reflesh()
+    refresh()
 }
 
 function createZombie(){ 
@@ -229,11 +231,8 @@ function createZombie(){
     var size = [1,3,1];   
 
     zombies.push( new zombie(color,coord,size, zombies.length));  
-    finalPoints = [...finalPoints,...zombies[zombies.length-1].points]
-    finalColors = [...finalColors,...zombies[zombies.length-1].colors]
- 
-    createPoints()  // yeni nokta oluşturulduğu için buf işlemi tekrar
-    createColors()
+    refresh()
+    
 }
 
 function sum(color){  // randomize cube's color so feel like shadow :)
@@ -275,26 +274,26 @@ function quad(a, b, c, d,x,y,z,w,h,r,color, point, colp)
     }
    
 }
-var timer = 0 ;
-function reflesh(){
-    let objects = zombies.concat(bullets);
+function refresh(){
     finalPoints = [...EnviromentPoints];
     finalColors = [...EnviromentColors];
+
+    let objects = zombies.concat(bullets);
     for (var o of objects) {
         finalPoints = [...finalPoints,...o.points]
-        finalColors = [...finalColors,...o.colors]
-        
+        finalColors = [...finalColors,...o.colors]    
     }
     
     createPoints() 
     createColors()
 }
 
+var z_timer = 0 ;
 function render()
 {
     
-    if(timer++ % 1000 == 0 )
-        createZombie()
+    if(z_timer++ % 100 == 0 )
+        createZombie()  
 
     glMatrix.mat4.identity(worldMatrix);
     
@@ -320,25 +319,23 @@ function render()
     
     gl.drawArrays( gl.TRIANGLES, 0, EnviromentPoints.length ); 
     
-    
-    // console.log(viewMatrix[0])
+     
     for (let [i,z] of zombies.entries()){  
         // z.followMe(moveX,moveZ);
-        if(z.showZombie(i) == -1){ // vurulma varsa 
-            
+        if(z.showZombie(i) == -1){ // vurulma varsa  
             zombies.splice(i,1);
-            reflesh()   
+            refresh()   
         }
         // console.log("z : ",zombies.length)
     } 
      
     for (let [i,b] of bullets.entries()){   
         b.showBullet(i)  
-        var mesafe = b.goto(); 
-        // if (mesafe[0] > kaybolmaUzakligi | mesafe[1] > kaybolmaUzakligi){ //belirli uzaklıkta kaybolur
-        //     bullets.splice(i,1); 
-        //     reflesh(bullets) 
-        // }
+        var timer = b.goto(); 
+        if (timer > kaybolmaSuresi ){ //belirli uzaklıkta kaybolur
+            bullets.splice(i,1); 
+            refresh(bullets) 
+        }
     }  
     
     requestAnimFrame( render );

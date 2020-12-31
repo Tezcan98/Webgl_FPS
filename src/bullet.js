@@ -13,7 +13,7 @@ class bullet {
       this.bullnum = id;
       this.size = [.2,.2,.2]
       this.target = [...target]
-       
+      this.time = 0;
  
       colorCube(coord, this.size, color, this.points, this.colors); 
 
@@ -32,9 +32,8 @@ class bullet {
       // console.log(this.target) 
       this.x += this.target[2]/10
       // this.y -= (this.target[1] - this.y)/4000;
-      this.z += this.target[0]/10 //(targetZ - this.z)/200;
-  
-      return [this.x,this.z]
+      this.z += this.target[0]/10 //(targetZ - this.z)/200; 
+      return this.time++
     }
      
     
