@@ -45,7 +45,7 @@
         <p>Life: <span id="life"></span></p>
     </div>
 
-    <img src="src/aim.png" alt="aim" width="30" height="30" style="position: absolute; z-index: 5;  position: absolute;
+    <img src="src/aim.png" alt="aim" left=20% width="30" height="30" style="position: absolute; z-index: 5;  position: absolute;
     left: 512px; top: 350px; user-select: none;">
     </body>
 
