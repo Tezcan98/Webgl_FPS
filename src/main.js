@@ -7,18 +7,11 @@ const canvasSizeX= 1024;
 const canvasSizeY= 780;
 
 var NumVertices  = 36;
-
 var EnviromentPoints = [];
 var EnviromentColors = [];
-
-var cubes = [];
-
-var axis = 0; 
 var program; 
 var cBuffer;
-var cBuffer2;
 var vBuffer;
-var vBuffer2;
 
 var black = [ 0.0, 0.0, 0.0, 1.0 ];
 var red = [ 1.0, 0.3, 0.0, 1.0 ]; // 
@@ -28,24 +21,69 @@ var blue = [ 0.2, 0.35, 0.9, 1.0 ];  // blue
 var magenta = [ 0.5, 0.2, 0.9, 1.0 ];  // magenta
 var cyan = [ 0.0, 0.5, 0.8, 1.0 ];  // cyan
 var white = [ 1.0, 1.0, 1.0, 1.0 ]   // white
+
 var moveX= 0.0;
-var moveY= 0;
+var moveY= 0.0;
 var moveZ= 0.0;
 var eyeX = 0;
-var eyeY = 0;
 var kaybolmaSuresi = 120;
-var zombies = [];  
 
+var zombies = [];  
 var bullets = []; 
 
 var finalPoints =[];
 var finalColors =[];
-var Radian = 90;
-var GRAVITY = 9.8; // zıplarız belki sdfsdf
+
+let documentScore = document.getElementById("score");
+let documentLife = document.getElementById("life");
+let heartCode = 128153;
+let score;
+let life;
+let isOver;
+let playerImmune;
+
+function loseLife() {
+    if (life-- <= 0) {
+        isOver == true;
+        documentLife.textContent = '-';
+        alert('GAME OVER!\nYour Score: ' + score + '\nPress ESC or SPACE for playing again.');
+        location.reload(true)
+        zombies = [];
+        bullets = [];
+    }
+    else {
+        let temp ="";
+        for(let i = 0; i < life; i++) {
+            temp += String.fromCodePoint(heartCode);
+        }  
+        documentLife.innerHTML = temp;
+    } 
+}
 
 window.onload = function init()
 {
+    score = 0;
+    life = 3;
+    playerImmune = false;
+    isOver = false;
+    documentScore.textContent = score;
+    for(let i = 0; i < life; i++) {
+        documentLife.innerHTML += ' ' + String.fromCodePoint(heartCode)
+    }
+
     canvas = document.getElementById( "gl-canvas" );
+    canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock;
+
+    canvas.onclick = function() {
+        canvas.requestPointerLock();
+    }
+
+    if(document.pointerLockElement === canvas ||
+        document.mozPointerLockElement === canvas) {
+          console.log('The pointer lock status is now locked');
+      } else {
+          console.log('The pointer lock status is now unlocked');
+      }
 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
@@ -65,23 +103,17 @@ window.onload = function init()
     initEnviroment(); // Duvarlar ve zemin oluşturulur. 
     createPoints()  
     createColors()
-    // createZombie();  // zombi class oluşturup zombiler dizisine ekler
-    // createZombie();  
-    
 
     matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');  // BURADA GEREKSİZLERİ SİL PLS
     matViewUniformLocation = gl.getUniformLocation(program, 'mView');
-    matViewTersUniformLocation = gl.getUniformLocation(program, 'mViewTers');
     matMoveUniformLocation = gl.getUniformLocation(program, 'mMove');
     matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
-    matTransMatrixUniformLocation = gl.getUniformLocation(program, 'transMatrix');
     
 
     worldMatrix = new Float32Array(16);   // BURADA GEREKSİZLERİ SİL PLS
     viewMatrix = new Float32Array(16); 
     projMatrix = new Float32Array(16);
     moveMatrix = new Float32Array(16);
-    transMatrix = new Float32Array(3); 
     
 
     document.addEventListener('keydown', function onDownUp(event)
@@ -89,13 +121,13 @@ window.onload = function init()
         switch(event.key){
             case 'W':
             case 'w':
-                moveX -= viewMatrix[8] / 4
-                moveZ += viewMatrix[10] / 4
+                moveX -= viewMatrix[8] /4
+                moveZ += viewMatrix[10] /4
                 break;
             case 'S':
             case 's':
                 moveX += viewMatrix[8] /4 
-                moveZ -= viewMatrix[10] / 4 
+                moveZ -= viewMatrix[10] /4 
                 break;
             case 'D':
             case 'd':
@@ -108,7 +140,7 @@ window.onload = function init()
                 moveZ -= viewMatrix[2] /4 
                 break;          
         }
-        if(moveX >= 20.0)   //DUVARA DEYMESİN
+        if(moveX >= 20.0)   // DUVARA DEĞMESİN
             moveX = 20.0
         else if (moveZ >= 20.0)
             moveZ = 20.0
@@ -116,27 +148,16 @@ window.onload = function init()
             moveX = -30.0
         else if (moveZ <= -30.0)
             moveZ = -30.0 
+
     }, false);
     var lastmouseX = canvasSizeX/2;
     var fark;
     document.addEventListener('mousemove', function (event) {
-        
-        var x = event.clientX;
-        var y = event.clientY;
-        eyeX = 0;
-        if ( (x < canvasSizeX-10) & (x > 20))
-            fark = x - lastmouseX;  
-        if (Math.abs(fark)>1) // hassasiyet
-            eyeX = fark*1.5
-
-        lastmouseX = x;
-
-      }, false)
+        eyeX = event.movementX
+    }, false)
     
   
       document.addEventListener('click', function (event) {
-      
-        // Ateş ettirmeler
         createBullet(viewMatrix); 
  
       }, false)
@@ -147,8 +168,6 @@ window.onload = function init()
         [0, 0, 0], //center - Point the viewer is looking at
         [0, 1, 0] // up - vec3 pointing up -> kameranın normal vektörü
     );
-    
-
     render();
 }
  
@@ -189,27 +208,15 @@ function createColors(){
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vColor );
 }
-
-var angle = 0;
-var yRotationMatrix;    // GEREKSİZLERİ SİLELİM
-var xRotationMatrix;
-var identityMatrix;
+   
 var worldMatrix;
 var viewMatrix;
-var viewMatrixTers;
 var projMatrix;
 var moveMatrix;
-var rotateX;
-var rotateY;
 var matWorldUniformLocation;
 var matViewUniformLocation;
-var matViewTersUniformLocation;
 var matProjUniformLocation;
 var matMoveUniformLocation;
-var matRotateXUniformLocation;
-var matRotateYUniformLocation;
-var transMatrix;
-var matTransMatrixUniformLocation;
 
 
 function createBullet(target){  
@@ -220,15 +227,23 @@ function createBullet(target){
 
 function createZombie(){ 
     var color= [ 0.1, 1, 0.1, 1.0 ] 
-    var x = Math.floor(Math.random()*3); 
-    var y=2
-    var z= Math.floor(Math.random() * 20); 
+    var x = moveX + Math.floor(Math.random()*(60)) - 30; 
+    var y = 2
+    var z = moveZ + Math.floor(Math.random()*(60)) - 30;
+    if(x >= 20.0)   // DUVARA DEĞMESİN
+        x = 20.0
+    else if (z >= 20.0)
+        z = 20.0
+    else if (x <= -30.0)
+        x = -30.0
+    else if (z <= -30.0)
+        z = -30.0 
+     
     var coord =[x,y,z];
     var size = [1,3,1];   
 
     zombies.push( new zombie(color,coord,size, zombies.length));  
     refresh()
-    
 }
 
 function sum(color){  // randomize cube's color so feel like shadow :)
@@ -271,6 +286,7 @@ function quad(a, b, c, d,x,y,z,w,h,r,color, point, colp)
    
 }
 function refresh(){
+
     finalPoints = [...EnviromentPoints];
     finalColors = [...EnviromentColors];
 
@@ -292,10 +308,8 @@ function render()
         createZombie()  
 
     glMatrix.mat4.identity(worldMatrix);
-    
     glMatrix.mat4.rotate(viewMatrix, viewMatrix, glMatrix.glMatrix.toRadian(eyeX), [0, 1, 0])
-    
-    glMatrix.mat4.fromTranslation(moveMatrix, [moveX, moveY, moveZ]);
+    glMatrix.mat4.fromTranslation(moveMatrix, [moveX, 0, moveZ]);
     
     eyeX = 0;
     glMatrix.mat4.perspective(projMatrix,
@@ -318,6 +332,7 @@ function render()
         z.followMe(moveX,moveZ);
         if(z.showZombie(i) == -1){ // vurulma varsa  
             zombies.splice(i,1);
+            documentScore.textContent = ++score;
             refresh()   
         } 
     } 
@@ -331,5 +346,7 @@ function render()
         }
     }  
     
-    requestAnimFrame( render );
+    if (!isOver) 
+        requestAnimFrame( render );
+
 }

@@ -3,7 +3,7 @@ class zombie {
       this.color = color;
       [this.x, this.y, this.z] = coord;
       [this.h, this.w, this.d] = size;
-      this.ilkX = this.x;  //yunus el atıcak
+      this.ilkX = this.x;
       this.ilkY = this.y;
       this.ilkZ = this.z;
       this.points= [];
@@ -21,7 +21,20 @@ class zombie {
       glMatrix.mat4.translate(worldMatrix, worldMatrix,[-this.x - this.ilkX, 1, -this.z + this.ilkZ ]);   
       gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix); 
       gl.drawArrays( gl.TRIANGLES, EnviromentPoints.length + (NumVertices*i),NumVertices);
-      glMatrix.mat4.translate(worldMatrix, worldMatrix,[this.x + this.ilkX, -1, this.z - this.ilkZ]);   
+      glMatrix.mat4.translate(worldMatrix, worldMatrix,[this.x + this.ilkX, -1, this.z - this.ilkZ]); 
+            
+      var axmax = this.x
+      var axmin = this.x-this.size[0]
+      var azmax = this.z
+      var azmin = this.z-this.size[2]
+      if (axmin <= moveX + 1 && axmax >= moveX - 1) 
+        if(azmin <= moveZ + 1 && azmax >= moveZ - 1){
+          if (!playerImmune) {
+            loseLife()
+            playerImmune = true;
+            setTimeout( function(){ playerImmune = false}, 1000 ) // oyuncu 1 saniyelik hasar almaz.
+          }
+        }
       return this.Checkcollusion(); // if collusion zombie will dead
     }
 
@@ -50,6 +63,4 @@ class zombie {
       this.x += (moveX - this.x)/200;
       this.z += (moveZ - this.z)/200;
     }
-    
-
   }

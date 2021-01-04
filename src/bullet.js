@@ -4,8 +4,7 @@ class bullet {
     constructor(color,coord,target, id) {
       this.color = color;
       [this.x, this.y, this.z] = coord; 
-      // this.y += 1;
-      this.ilkX = -this.x;  //yunus el atıcak
+      this.ilkX = -this.x;
       this.ilkY = -this.y;
       this.ilkZ = -this.z;
       this.points= [];
@@ -18,8 +17,6 @@ class bullet {
       colorCube(coord, this.size, color, this.points, this.colors); 
 
     } 
-    setX(x){this.x=x}
-    setZ(z){this.z=z}
 
     showBullet(i){   
       glMatrix.mat4.translate(worldMatrix, worldMatrix,[-this.x + this.ilkX, this.y, -this.z - this.ilkZ]);   
@@ -29,12 +26,9 @@ class bullet {
     }
 
     goto(){
-      // console.log(this.target) 
       this.x += this.target[2]/10
-      // this.y -= (this.target[1] - this.y)/4000;
-      this.z += this.target[0]/10 //(targetZ - this.z)/200; 
+      this.z += this.target[0]/10
       return this.time++
     }
      
-    
   }
