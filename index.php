@@ -46,7 +46,7 @@
     </div>
 
     <img src="src/aim.png" alt="aim"  width="30" height="30" style="position: absolute; z-index: 5; 
-    left=20%; top: 350px; user-select: none;">
+    left: 20%; top: 350px; user-select: none;">
     </body>
 
     <script type="text/javascript" src="Common/webgl-utils.js"></script>
