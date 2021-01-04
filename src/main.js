@@ -152,7 +152,7 @@ window.onload = function init()
     }, false);
 	
     document.addEventListener('mousemove', function (event) {
-        eyeX = event.movementX/10
+        eyeX = event.movementX/5
     }, false)
     
   
