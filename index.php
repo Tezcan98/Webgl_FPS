@@ -36,11 +36,11 @@
  
 </head>
 <body>
-    <canvas id="gl-canvas" width="1024" height="780" style="float: left;border-style: dotted;"> 
+    <canvas id="gl-canvas" width="1024" height="700" style=" position: absolute;left: 20%;  border-style: dotted;"> 
     Oops ...  
     </canvas>
 
-    <div id="game_stuff" style="user-select: none;">
+    <div id="game_stuff" style="position:absolute;z-index: 20; left:20%; top: 0; user-select: none;">
         <p>Score: <span id="score">0</span></p>
         <p>Life: <span id="life"></span></p>
     </div>

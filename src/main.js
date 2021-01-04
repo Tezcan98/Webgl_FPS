@@ -4,7 +4,7 @@ var canvas;
 var gl;
 
 const canvasSizeX= 1024;
-const canvasSizeY= 780;
+const canvasSizeY= 700;
 
 var NumVertices  = 36;
 var EnviromentPoints = [];
