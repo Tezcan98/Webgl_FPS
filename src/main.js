@@ -150,10 +150,9 @@ window.onload = function init()
             moveZ = -30.0 
 
     }, false);
-    var lastmouseX = canvasSizeX/2;
-    var fark;
+	
     document.addEventListener('mousemove', function (event) {
-        eyeX = event.movementX
+        eyeX = event.movementX/10
     }, false)
     
   
